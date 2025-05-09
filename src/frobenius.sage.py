@@ -108,17 +108,27 @@ def reduction_z_neg(pow_ser,exact_form=_sage_const_0 ):
         exact_form += X.dot_product(vector([x**_sage_const_0 *z**(k-_sage_const_2 ),x**_sage_const_1 *z**k,x**_sage_const_2 *z**k]))
         return reduction_z_neg(pow_ser-X.dot_product(vector([differential_zn(f,_sage_const_0 ,k-_sage_const_2 ),differential_zn(f,_sage_const_1 ,k),differential_zn(f,_sage_const_2 ,k)])),exact_form)
 
+
+
+def reduction_z(pow_ser):
+    red_pow_ser_pos, exact_pos = reduction_z_pos(pow_ser)
+    red_pow_ser_neg, exact_neg = reduction_z_neg(red_pow_ser_pos,exact_pos)
+
+    exact_form = exact_neg + red_pow_ser_neg[_sage_const_1 ][_sage_const_2 ]/(differential_zn(f,_sage_const_0 ,-_sage_const_1 )[_sage_const_1 ][_sage_const_2 ])*z**(-_sage_const_1 )
+    red_pow_ser_fin = red_pow_ser_neg -red_pow_ser_neg[_sage_const_1 ][_sage_const_2 ]/(differential_zn(f,_sage_const_0 ,-_sage_const_1 )[_sage_const_1 ][_sage_const_2 ])*differential_zn(f,_sage_const_0 ,-_sage_const_1 )
+
+    return (red_pow_ser_fin,exact_form)
+  
+
 def matrix_frobenius(p,frob_omega,frob_eta,prec=_sage_const_10 , exact_dif = False):
 
     Z5 = Zp(p, prec, type = 'capped-abs', print_mode = 'series')
-
+    
     red_frob_eta = reduction_coeff(frob_eta)
     red_frob_omega = reduction_coeff(frob_omega)
 
-    red_frob_eta_pos, exact_pos= reduction_z_pos(red_frob_eta)
-    red_frob_eta_fin, exact_form_eta= reduction_z_neg(red_frob_eta_pos,exact_pos)
-    red_frob_omega_pos, exact_pos= reduction_z_pos(red_frob_omega)
-    red_frob_omega_fin, exact_form_omega= reduction_z_neg(red_frob_omega_pos,exact_pos)
+    red_frob_eta_fin, exact_form_eta= reduction_z(red_frob_eta)
+    red_frob_omega_fin, exact_form_omega= reduction_z(red_frob_omega)
 
     matrix_frobenius = matrix(Z5,_sage_const_2 )
     matrix_frobenius[_sage_const_0 ,_sage_const_0 ] = red_frob_omega_fin[_sage_const_1 ][_sage_const_0 ]
@@ -130,6 +140,6 @@ def matrix_frobenius(p,frob_omega,frob_eta,prec=_sage_const_10 , exact_dif = Fal
         return (matrix_frobenius, [exact_form_omega,exact_form_eta])
     else:
         return matrix_frobenius
-
+    
 print(matrix_frobenius(p,frob_omega,frob_eta))
 

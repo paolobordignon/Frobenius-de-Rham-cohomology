@@ -102,17 +102,27 @@ def reduction_z_neg(pow_ser,exact_form=0):
         exact_form += X.dot_product(vector([x^0*z^(k-2),x^1*z^k,x^2*z^k]))
         return reduction_z_neg(pow_ser-X.dot_product(vector([differential_zn(f,0,k-2),differential_zn(f,1,k),differential_zn(f,2,k)])),exact_form)
 
+
+
+def reduction_z(pow_ser):
+    red_pow_ser_pos, exact_pos = reduction_z_pos(pow_ser)
+    red_pow_ser_neg, exact_neg = reduction_z_neg(red_pow_ser_pos,exact_pos)
+
+    exact_form = exact_neg + red_pow_ser_neg[1][2]/(differential_zn(f,0,-1)[1][2])*z^(-1)
+    red_pow_ser_fin = red_pow_ser_neg -red_pow_ser_neg[1][2]/(differential_zn(f,0,-1)[1][2])*differential_zn(f,0,-1)
+
+    return (red_pow_ser_fin,exact_form)
+  
+
 def matrix_frobenius(p,frob_omega,frob_eta,prec=10, exact_dif = False):
 
     Z5 = Zp(p, prec, type = 'capped-abs', print_mode = 'series')
-
+    
     red_frob_eta = reduction_coeff(frob_eta)
     red_frob_omega = reduction_coeff(frob_omega)
 
-    red_frob_eta_pos, exact_pos= reduction_z_pos(red_frob_eta)
-    red_frob_eta_fin, exact_form_eta= reduction_z_neg(red_frob_eta_pos,exact_pos)
-    red_frob_omega_pos, exact_pos= reduction_z_pos(red_frob_omega)
-    red_frob_omega_fin, exact_form_omega= reduction_z_neg(red_frob_omega_pos,exact_pos)
+    red_frob_eta_fin, exact_form_eta= reduction_z(red_frob_eta)
+    red_frob_omega_fin, exact_form_omega= reduction_z(red_frob_omega)
 
     matrix_frobenius = matrix(Z5,2)
     matrix_frobenius[0,0] = red_frob_omega_fin[1][0]
@@ -124,5 +134,5 @@ def matrix_frobenius(p,frob_omega,frob_eta,prec=10, exact_dif = False):
         return (matrix_frobenius, [exact_form_omega,exact_form_eta])
     else:
         return matrix_frobenius
-
+    
 print(matrix_frobenius(p,frob_omega,frob_eta))
