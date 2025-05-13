@@ -19,8 +19,6 @@ frob_eta = p*x**(2*p-1)*frob_z
 
 V = LaurentSeriesRing(S)
 
-from sage.all import *
-
 def reduction_coeff(pow_ser):
     pow_ser_2 = pow_ser
     for i in range(len(pow_ser_2.coefficients())):
